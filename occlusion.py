@@ -5,6 +5,7 @@ import numpy as numpy
 import time
 import unittest
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 from shapely.geometry import Point
 from shapely.geometry import LineString
@@ -37,11 +38,6 @@ def shapelyPoly2plot(polygon):
     return x_coor, y_coor
 
 
-##test shapelyPoly2plot
-
-
-
-
 #Tests
 ext = [(1, 1), (1, 3), (3, 3), (3, 1)]
 x_coordinates = [1,1,3,3,1]
@@ -50,8 +46,8 @@ y_coordinates = [1,3,3,1,1]
 polygon1 = Polygon(ext)
 x_output, y_output =   shapelyPoly2plot(polygon1)
 
-print x_output
-print x_coordinates
+#print x_output
+#print x_coordinates
 tc = unittest.TestCase('__init__')
 tc.assertEqual(x_output, x_coordinates, "Shapely2plot: X coordinates incorrect")
 tc.assertEqual(y_output, y_coordinates, "Shapely2plot: Y coordinates incorrect")
@@ -68,6 +64,7 @@ ext_y2 = [7,8,9,12,7]
 
 p1 = Polygon(ext1)
 p2 = Polygon(ext2)
+obstacles = [p1,p2]
 
 x1,y1 = shapelyPoly2plot(p1)
 x2,y2 = shapelyPoly2plot(p2)
@@ -85,35 +82,75 @@ xy1 = line.coords[1]
 
 
 #plotting
+map_width = 15
+map_height = 15
+
+plt.ion()  #interactive mode: https://stackoverflow.com/questions/28269157/plotting-in-a-non-blocking-way-with-matplotlib
+plt.show()
+
 plt.close()
 fig = plt.figure()
 ax = fig.add_subplot(111) # number of rows. cols, current plot number
 
-#plot polygons
-ax.fill(x1,y1)
-ax.fill(x2, y2)
-#plot line
-ax.quiver(xy0[0], xy0[1], xy1[0], xy1[1], units = 'xy', scale = 1)
 
-print line.intersects(p1)
-print line.intersection(p1)
-print line.intersects(p2)
+
+
+#plot polygons
+ax.fill(x1,y1, zorder = 10)
+ax.fill(x2, y2, zorder = 10)
+#plot line
+ax.quiver(xy0[0], xy0[1], xy1[0], xy1[1], units = 'xy', scale = 1, zorder = 5)
+
+#print line.intersects(p1)
+#print line.intersection(p1)
+#print line.intersects(p2)
 plt.axis('equal')
 plt.grid()
+ax.set_xlim([-1, map_width+1])
+ax.set_ylim([-1, map_height+1])
 
-#plt.plot(ext_x, ext_y)
-plt.show()
+#ax.add_patch(patches.Circle((0.5, 0.5), 0.2), zorder = 1)
 
-
-
-
-
-
-
-
-
+#plot threat
+threat_x = 3
+threat_y = 8
+threat = plt.Circle((threat_x,threat_y), radius=.25, color='r', fill=True, zorder = 15)
+ax.add_artist(threat)
 
 
+#time.sleep(4)
+#loop through every point and check if it is occluded
+
+#first try to first row
+for x in range(0,map_width):
+    for y in range(0, map_height):
+        threat_to_vertex_coordinates = [(threat_x,threat_y),(x,y)]
+        line_threat_to_vertex = LineString(threat_to_vertex_coordinates)
+        print("Vertex ( %i, %i ): " % (x ,y))
+
+        for obs in obstacles:
+            occluded = line_threat_to_vertex.intersects(obs)
+            print("     Occluded: %s" % occluded)
+            if occluded:
+               v = plt.Circle((x,y), radius=.25, color='k', fill=True, zorder = 13)
+               ax.add_artist(v)
+               break
+            else:
+               v = plt.Circle((x,y), radius=.25, color='g', fill=True, zorder = 13)
+               ax.add_artist(v)
+
+        plt.draw()
+        plt.pause(0.001)
+
+
+
+#current robot viewing location
+robot_x = 1
+robot_y = 10
+robot = plt.Circle((robot_x,robot_y), radius=.25, color='b', fill=True, zorder = 15)
+ax.add_artist(robot)
+plt.draw()
+plt.pause(0.001)
 
 
 
@@ -123,9 +160,32 @@ plt.show()
 
 
 
+time.sleep(10)
 
 
-
-
-
-
+'''                                                                             
+coor = list(polygon.exterior.coords)                                            
+print coor                                                                      
+plt.show()                                                                      
+plt.hold(True)                                                                  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+#clear matplotlib plots                                                         
+plt.close()                                                                     
+                                                                                
+#size of grid                                                                   
+rows = 10; columns = 10                                                         
+x_c = [0,1,2,3,4,5,6,7,8,9]                                                     
+                                                                                
+matrix = numpy.zeros((rows, columns))                                           
+                                                                                
+a = numpy.ones(10)                                                              
+for i in range(0,rows,1):                                                       
+        plt.plot(a*i,x_c, 'ro')                                                 
+        plt.hold(True)                                                          
+                                                                                
+                                                                                
+plt.show()                                                                      
+'''
