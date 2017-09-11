@@ -121,10 +121,42 @@ def scoutGoal(rawObstacleList, threatPos, robotPos, mapSize):
     print ("returned minHeap:", len(minHeapVertices))
     # lets look at & return the 5 best candidate points
     nsmallest = hp.nsmallest(5, minHeapVertices)
-    print len(nsmallest)  ###NO ELEMENTS!!!!!!!!!!
+    print "Best coordinates:"
     for n in nsmallest:
         val = n[0];
         node = n[1];
         print (val, node)
 
     return nsmallest
+
+#check format of each input
+    #rawObstacleList: list of coordinate lists
+    #format: (  ((x0,y0), (x1,y1),...,(xn,yn)), ...)
+def matlabInterfacePrintingInputs(rawObstacleList, threatPos, robotPos, mapSize):
+    #print "rawObstacleList"
+    for raw_obs in rawObstacleList:
+        print "obstacle:{0}".format(raw_obs)
+
+
+    #threatPos: tuple of (tx,yx)
+    print "threatPos {0}".format(threatPos)
+
+    #robotPos: tuple of (rx,ry)
+    print "robotPos {0}".format(robotPos)
+
+    #mapSize: tuple of (mapWidth, mapHeight)
+    print "mapSize {0}".format(mapSize)
+
+    print "Hello Dade!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+    r = []
+    r.append((1,1))
+    r.append((1,2))
+
+    return r
+
+
+def printHelloFromMat():
+    print "Hello DATA!!!!!!!!!!!!"
+    print "A CHANGE"
+    return 1
