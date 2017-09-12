@@ -123,12 +123,14 @@ if plot:
 
 
 else:
-    print "In non printing"
-    print (threat_x, threat_y)
-    print (robot_x, robot_y)
-    print (map_width, map_height)
+    print "Inputs: threat: %s, robot: %s, mapSize: %s" % ((threat_x, threat_y), (robot_x, robot_y),(map_width, map_height))
+
+    #print "matlabHelper:"
+    #user_fun.matlabInterfacePrintingInputs(raw_obstacles, (threat_x, threat_y), (robot_x, robot_y), (map_width, map_height))
     bestGoalPoints = user_fun.scoutGoal(raw_obstacles, (threat_x, threat_y), (robot_x, robot_y), (map_width, map_height))
-    print bestGoalPoints
+    user_fun.plotOutputs(raw_obstacles, (threat_x, threat_y), (robot_x, robot_y), (map_width, map_height), bestGoalPoints)
+    #print bestGoalPoints
+    #user_fun.printHelloFromMat()
 
 
 
