@@ -1,6 +1,4 @@
 function [ fig ] = plotPythonOutput( obstacles, threatPos, robotPos, mapSize, nBestPoints )
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
 %%plot output
 fig = figure();
 ax  = axes;  % number of rows. cols, current plot number
