@@ -72,8 +72,17 @@ def shapelyPoly2plot(polygon):
 
     return x_coor, y_coor
 
+def rawObs2ShapelyPoly(rawObstacleList):
+    obstacles = []
+    for raw_obs in rawObstacleList:
+        # print raw_obs
+        obs = shapely.Polygon(raw_obs)
+        obstacles.append(obs)
 
-def occlusionMap(mapSize, obstacles, threatPos, robotPos):
+
+    return obstacles
+
+def occlusionMap(obstacles, threatPos, robotPos, mapSize):
     map_width = mapSize[0];   map_height = mapSize[1]
     threat_x  = threatPos[0]; threat_y   = threatPos[1]
     robot_x   = robotPos[0];  robot_y    = robotPos[1]
@@ -106,21 +115,13 @@ def occlusionMap(mapSize, obstacles, threatPos, robotPos):
     return minHeap
 
 
-
 #example scoutGoal(..., (tx,ty), (rx,ry), (mw,mh))
 def scoutGoal(rawObstacleList, threatPos, robotPos, mapSize):
-    # plotting
-    map_width = mapSize[0]; map_height = mapSize[1]
-
-    obstacles = []
-    for raw_obs in rawObstacleList:
-        #print raw_obs
-        obs = Polygon(raw_obs)
-        obstacles.append(obs)
+    obstacles = rawObs2ShapelyPoly(rawObstacleList)
 
     #build an occlusion map and find the best xy for scout
-    minHeapVertices = occlusionMap(mapSize, obstacles, threatPos, robotPos)
-    #print ("returned minHeap:", len(minHeapVertices))
+    minHeapVertices = occlusionMap(obstacles, threatPos, robotPos, mapSize)
+
     # lets look at & return the 5 best candidate points
     nsmallest = hp.nsmallest(5, minHeapVertices)
     print "Best coordinates:"
@@ -128,6 +129,9 @@ def scoutGoal(rawObstacleList, threatPos, robotPos, mapSize):
         val = n[0];
         node = n[1];
         print (val, node)
+
+
+    #plotOutputs(rawObstacleList, threatPos, robotPos, mapSize, nsmallest)
 
     return nsmallest
 
@@ -150,41 +154,37 @@ def matlabInterfacePrintingInputs(rawObstacleList, threatPos, robotPos, mapSize)
     print "mapSize {0}".format(mapSize)
 
 
-def rawObs2ShapelyPoly(rawObstacleList):
-    obstacles = []
-    for raw_obs in rawObstacleList:
-        # print raw_obs
-        obs = shapely.Polygon(raw_obs)
-        obstacles.append(obs)
-
-
-    return obstacles
 
 #after getting the optimal points from scoutGoal,lets take a look at these returned points
 def plotOutputs(rawObstacleList, threatPos, robotPos, mapSize, nBestPoints):
+    print "About to plot..."
+
     #convert the rawObstacles list to list of shapely polygons
     obstacles = rawObs2ShapelyPoly(rawObstacleList)
 
-
     plt.close()
-    plt.ion()  # interactive mode: https://stackoverflow.com/questions/28269157/plotting-in-a-non-blocking-way-with-matplotlib
-    plt.show()
+    #plt.ion()  # interactive mode: https://stackoverflow.com/questions/28269157/plotting-in-a-non-blocking-way-with-matplotlib
     fig = plt.figure()
+
     ax = fig.add_subplot(111)  # number of rows. cols, current plot number
     plt.axis('equal')
     plt.grid()
     ax.set_xlim([-3, mapSize[0] + 3])
     ax.set_ylim([-3, mapSize[1] + 3])
 
+
     #convert shapelyPolygon format to format for plotting library
     for obs in obstacles:
         obs_x, obs_y = shapelyPoly2plot(obs)
         ax.fill(obs_x, obs_y, color="magenta", zorder=10)
 
+    print "   plotted obstacles..."
+
     threat = plt.Circle((threatPos[0], threatPos[1]), radius=.25, color='r', fill=True, zorder=15)
     robot = plt.Circle((robotPos[0], robotPos[1]), radius=.25, color='b', fill=True, zorder=15)
     ax.add_artist(threat)
     ax.add_artist(robot)
+    print "   plotted threat/robot..."
 
     #plot the n Best returned points from scoutGoal
     for scoutPoint in nBestPoints:
@@ -193,10 +193,14 @@ def plotOutputs(rawObstacleList, threatPos, robotPos, mapSize, nBestPoints):
         sp    = plt.Circle((point[0], point[1]), radius=.25, color='g', fill=True, zorder=12)
         ax.add_artist(sp)
 
-    plt.draw()
-    plt.pause(0.001)
 
-    time.sleep(25)
+
+    print "   plotted best points..."
+    return
+    #plt.show()
+    plt.draw()
+    plt.pause(.01)
+    time.sleep(5)
 
 
 def printHelloFromMat():
